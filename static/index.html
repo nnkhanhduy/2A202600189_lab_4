@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TravelBuddy — Trợ lý Du lịch AI</title>
+<meta name="description" content="TravelBuddy - Trợ lý du lịch AI thông minh giúp bạn tìm chuyến bay, khách sạn và lên kế hoạch chuyến đi tại Việt Nam."/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "on-surface": "#191c1d",
+                    "secondary-container": "#ffd167",
+                    "surface-bright": "#f8f9fa",
+                    "on-surface-variant": "#404850",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e1e3e4",
+                    "inverse-primary": "#94ccff",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#94ccff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#ffdf9b",
+                    "inverse-surface": "#2e3132",
+                    "tertiary": "#864a00",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#6c3a00",
+                    "surface-container-high": "#e7e8e9",
+                    "tertiary-fixed-dim": "#ffb877",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#cde5ff",
+                    "on-tertiary-fixed": "#2e1600",
+                    "outline": "#707881",
+                    "tertiary-container": "#a95f00",
+                    "background": "#f8f9fa",
+                    "inverse-on-surface": "#f0f1f2",
+                    "on-primary-fixed-variant": "#004b74",
+                    "secondary-fixed-dim": "#edc157",
+                    "on-primary": "#ffffff",
+                    "on-background": "#191c1d",
+                    "on-primary-fixed": "#001d32",
+                    "surface-dim": "#d9dadb",
+                    "surface": "#f8f9fa",
+                    "surface-container": "#edeeef",
+                    "error": "#ba1a1a",
+                    "primary-container": "#0077b6",
+                    "outline-variant": "#bfc7d1",
+                    "secondary": "#785a00",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-container-low": "#f3f4f5",
+                    "on-secondary-container": "#765900",
+                    "primary": "#005d90",
+                    "on-tertiary-container": "#fff6f1",
+                    "on-primary-container": "#f3f7ff",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#006399",
+                    "on-secondary-fixed-variant": "#5b4300",
+                    "on-secondary-fixed": "#251a00",
+                    "tertiary-fixed": "#ffdcc0"
+                },
+                borderRadius: {
+                    DEFAULT: "1rem",
+                    lg: "2rem",
+                    xl: "3rem",
+                    full: "9999px"
+                },
+                fontFamily: {
+                    headline: ["Plus Jakarta Sans"],
+                    body: ["Inter"],
+                    label: ["Inter"]
+                }
+            },
+        },
+    }
+</script>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+    }
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Scrollbar styling */
+    .chat-feed::-webkit-scrollbar { width: 6px; }
+    .chat-feed::-webkit-scrollbar-track { background: transparent; }
+    .chat-feed::-webkit-scrollbar-thumb { background: #bfc7d1; border-radius: 999px; }
+    .chat-feed::-webkit-scrollbar-thumb:hover { background: #707881; }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-dot {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+        40% { transform: scale(1); opacity: 1; }
+    }
+    .msg-animate { animation: fadeInUp 0.35s ease-out; }
+    .dot-1 { animation: pulse-dot 1.4s infinite ease-in-out; }
+    .dot-2 { animation: pulse-dot 1.4s infinite ease-in-out 0.2s; }
+    .dot-3 { animation: pulse-dot 1.4s infinite ease-in-out 0.4s; }
+
+    /* Tool chip */
+    .tool-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 3px 10px; border-radius: 999px;
+        background: rgba(0,93,144,0.08); color: #005d90;
+        font-size: 11px; font-weight: 600;
+    }
+
+    /* ===== Rich AI Message Styling ===== */
+    .ai-content { line-height: 1.7; }
+    .ai-content strong { font-weight: 700; color: #005d90; }
+    .ai-content em { font-style: italic; color: #404850; }
+
+    /* Section cards for ### headings */
+    .ai-section {
+        margin: 12px 0 8px 0;
+        padding: 10px 14px;
+        background: linear-gradient(135deg, rgba(0,93,144,0.06) 0%, rgba(0,119,182,0.03) 100%);
+        border-left: 3px solid #0077b6;
+        border-radius: 0 10px 10px 0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        color: #005d90;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ai-section .section-icon {
+        font-size: 16px;
+        opacity: 0.8;
+    }
+
+    /* List items */
+    .ai-content ul, .ai-content ol {
+        padding-left: 0;
+        margin: 6px 0;
+        list-style: none;
+    }
+    .ai-content li {
+        position: relative;
+        padding: 6px 12px 6px 28px;
+        margin: 4px 0;
+        background: rgba(248,249,250,0.6);
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .ai-content li::before {
+        content: '';
+        position: absolute;
+        left: 12px;
+        top: 13px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #0077b6;
+    }
+    .ai-content li.numbered::before {
+        content: attr(data-num);
+        width: auto; height: auto;
+        border-radius: 0;
+        background: none;
+        color: #005d90;
+        font-weight: 700;
+        font-size: 12px;
+        top: 7px;
+        left: 10px;
+    }
+
+    /* Horizontal rule */
+    .ai-content hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #bfc7d1, transparent);
+        margin: 12px 0;
+    }
+
+    /* Inline code */
+    .ai-content code {
+        background: rgba(0,93,144,0.08);
+        color: #005d90;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: 'Fira Code', monospace;
+    }
+
+    /* Price highlight */
+    .price-tag {
+        display: inline-block;
+        background: linear-gradient(135deg, #e6f4ea, #d4edda);
+        color: #1a7431;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+    }
+    .price-tag.warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeeba);
+        color: #856404;
+    }
+    .price-tag.danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+
+    /* Summary card */
+    .ai-summary {
+        margin: 10px 0;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, rgba(0,93,144,0.04), rgba(0,119,182,0.02));
+        border: 1px solid rgba(0,119,182,0.12);
+        border-radius: 12px;
+    }
+</style>
+</head>
+<body class="bg-surface text-on-surface flex h-screen overflow-hidden">
+
+<!-- ============ SIDEBAR ============ -->
+<aside id="sidebar" class="h-screen w-64 hidden lg:flex flex-col border-r border-slate-200/50 bg-slate-50 fixed left-0 top-0 p-4 space-y-6 z-40">
+    <div class="flex items-center gap-3 px-2">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center text-white shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">travel_explore</span>
+        </div>
+        <div>
+            <h2 class="text-lg font-bold text-sky-900 tracking-tighter">TravelBuddy</h2>
+            <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">AI Concierge</p>
+        </div>
+    </div>
+    <nav class="flex-1 space-y-1">
+        <div class="px-2 pb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Menu</div>
+        <a id="nav-new-trip" class="flex items-center gap-3 px-4 py-3 bg-sky-100/50 text-sky-800 font-medium rounded-xl transition-all duration-300 cursor-pointer" onclick="clearChat()">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span class="text-sm">Cuộc hội thoại mới</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 duration-300 rounded-xl cursor-pointer">
+            <span class="material-symbols-outlined">explore</span>
+            <span class="text-sm">Khám phá</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 duration-300 rounded-xl cursor-pointer">
+            <span class="material-symbols-outlined">bookmark</span>
+            <span class="text-sm">Đã lưu</span>
+        </a>
+
+        <div class="pt-6 px-2 pb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Gợi ý nhanh</div>
+        <div class="space-y-1">
+            <a class="block px-4 py-2 text-sm text-slate-600 hover:text-primary transition-colors truncate cursor-pointer" onclick="sendQuick('Xin chào! Tôi đang muốn đi du lịch nhưng chưa biết đi đâu.')">💬 Test 1: Direct Answer</a>
+            <a class="block px-4 py-2 text-sm text-slate-600 hover:text-primary transition-colors truncate cursor-pointer" onclick="sendQuick('Tìm giúp tôi chuyến bay từ Hà Nội đi Đà Nẵng')">✈️ Test 2: Single Tool</a>
+            <a class="block px-4 py-2 text-sm text-slate-600 hover:text-primary transition-colors truncate cursor-pointer" onclick="sendQuick('Tôi ở Hà Nội, muốn đi Phú Quốc 2 đêm, budget 5 triệu. Tư vấn giúp!')">📋 Test 3: Multi-Step</a>
+            <a class="block px-4 py-2 text-sm text-slate-600 hover:text-primary transition-colors truncate cursor-pointer" onclick="sendQuick('Tôi muốn đặt khách sạn')">❓ Test 4: Missing Info</a>
+            <a class="block px-4 py-2 text-sm text-slate-600 hover:text-primary transition-colors truncate cursor-pointer" onclick="sendQuick('Giải giúp tôi bài tập lập trình Python về linked list')">🛡️ Test 5: Guardrail</a>
+        </div>
+    </nav>
+    <div class="pt-4 border-t border-slate-200/50">
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-primary to-primary-container text-white mb-4">
+            <p class="text-xs font-medium opacity-90 mb-1">Powered by</p>
+            <p class="text-sm font-bold mb-1">LangGraph + OpenAI</p>
+            <p class="text-[10px] opacity-70">gpt-4o-mini • 3 tools</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main class="flex-1 flex flex-col lg:ml-64 relative h-full">
+    <!-- Top Bar -->
+    <header class="w-full sticky top-0 z-50 flex justify-between items-center px-6 py-3 bg-surface/80 backdrop-blur-xl shadow-sm">
+        <div class="flex items-center gap-4">
+            <button class="lg:hidden p-2 text-on-surface" onclick="toggleSidebar()">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h1 class="text-xl font-bold tracking-tighter text-sky-900 font-headline">
+                <span class="material-symbols-outlined text-primary mr-1" style="font-variation-settings:'FILL' 1;">travel_explore</span>
+                TravelBuddy
+            </h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <div id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <span class="text-xs text-slate-500 font-medium">Online</span>
+        </div>
+    </header>
+
+    <!-- Chat Feed -->
+    <div id="chat-feed" class="chat-feed flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 pb-48">
+        <!-- Welcome Message -->
+        <div id="welcome-msg" class="flex gap-3 max-w-3xl msg-animate">
+            <div class="w-8 h-8 shrink-0 rounded-lg bg-primary-container flex items-center justify-center text-white mt-1">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-surface-container-highest p-4 rounded-xl rounded-tl-sm text-on-surface text-sm leading-relaxed">
+                    Xin chào! Mình là <strong>TravelBuddy</strong> — trợ lý du lịch AI của bạn 🌏<br><br>
+                    Mình có thể giúp bạn:
+                    <ul class="mt-2 space-y-1">
+                        <li>✈️ Tìm chuyến bay nội địa</li>
+                        <li>🏨 Tìm khách sạn phù hợp ngân sách</li>
+                        <li>📋 Lên kế hoạch chuyến đi trọn gói</li>
+                    </ul>
+                    <br>Bạn muốn đi đâu nào? 😊
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Area (Fixed Bottom) -->
+    <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-surface via-surface/95 to-transparent pointer-events-none">
+        <div class="max-w-3xl mx-auto space-y-3 pointer-events-auto">
+            <!-- Quick Action Chips -->
+            <div id="quick-chips" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <button onclick="sendQuick('Xin chào! Tôi đang muốn đi du lịch nhưng chưa biết đi đâu.')" class="whitespace-nowrap px-4 py-2 bg-white border border-slate-100 text-slate-700 text-xs font-medium rounded-full hover:bg-sky-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm">
+                    💬 Direct Answer (Test 1)
+                </button>
+                <button onclick="sendQuick('Tìm giúp tôi chuyến bay từ Hà Nội đi Đà Nẵng')" class="whitespace-nowrap px-4 py-2 bg-white border border-slate-100 text-slate-700 text-xs font-medium rounded-full hover:bg-sky-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm">
+                    ✈️ Single Tool (Test 2)
+                </button>
+                <button onclick="sendQuick('Tôi ở Hà Nội, muốn đi Phú Quốc 2 đêm, budget 5 triệu. Tư vấn giúp!')" class="whitespace-nowrap px-4 py-2 bg-white border border-slate-100 text-slate-700 text-xs font-medium rounded-full hover:bg-sky-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm">
+                    📋 Multi-Step (Test 3)
+                </button>
+                <button onclick="sendQuick('Tôi muốn đặt khách sạn')" class="whitespace-nowrap px-4 py-2 bg-white border border-slate-100 text-slate-700 text-xs font-medium rounded-full hover:bg-sky-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm">
+                    ❓ Missing Info (Test 4)
+                </button>
+                <button onclick="sendQuick('Giải giúp tôi bài tập lập trình Python về linked list')" class="whitespace-nowrap px-4 py-2 bg-white border border-slate-100 text-slate-700 text-xs font-medium rounded-full hover:bg-sky-50 hover:border-primary/20 hover:text-primary transition-all shadow-sm">
+                    🛡️ Guardrail (Test 5)
+                </button>
+            </div>
+            <!-- Input Bar -->
+            <div class="relative group">
+                <div class="absolute inset-0 bg-primary/5 rounded-full blur-xl group-focus-within:bg-primary/10 transition-all"></div>
+                <div class="relative bg-surface-container-lowest flex items-center gap-2 p-2 rounded-full shadow-lg border border-white/50 backdrop-blur-md">
+                    <input
+                        id="msg-input"
+                        class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder-on-surface-variant/50 px-4"
+                        placeholder="Bạn muốn đi đâu? Nhập tin nhắn..."
+                        type="text"
+                        autocomplete="off"
+                        onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage()}"
+                    />
+                    <button
+                        id="send-btn"
+                        onclick="sendMessage()"
+                        class="w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-primary to-primary-container text-white rounded-full shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100"
+                    >
+                        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">send</span>
+                    </button>
+                </div>
+            </div>
+            <p class="text-[10px] text-center text-on-surface-variant font-medium opacity-50">TravelBuddy sử dụng AI. Thông tin có thể không chính xác 100%.</p>
+        </div>
+    </div>
+</main>
+
+<!-- ============ MOBILE SIDEBAR OVERLAY ============ -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+<script>
+// ==================== STATE ====================
+let conversationHistory = [];
+let isLoading = false;
+
+// ==================== DOM ====================
+const chatFeed   = document.getElementById('chat-feed');
+const msgInput   = document.getElementById('msg-input');
+const sendBtn    = document.getElementById('send-btn');
+const quickChips = document.getElementById('quick-chips');
+
+// ==================== SIDEBAR TOGGLE (mobile) ====================
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('flex');
+    sidebar.classList.toggle('fixed');
+    sidebar.classList.toggle('z-50');
+    overlay.classList.toggle('hidden');
+}
+
+// ==================== CLEAR CHAT ====================
+function clearChat() {
+    conversationHistory = [];
+    // Keep only the welcome message
+    const welcome = document.getElementById('welcome-msg');
+    chatFeed.innerHTML = '';
+    if (welcome) chatFeed.appendChild(welcome);
+    else location.reload();
+    quickChips.classList.remove('hidden');
+}
+
+// ==================== SEND MESSAGE (STREAMING) ====================
+async function sendMessage() {
+    const text = msgInput.value.trim();
+    if (!text || isLoading) return;
+
+    isLoading = true;
+    msgInput.value = '';
+    sendBtn.disabled = true;
+    quickChips.classList.add('hidden');
+
+    // Render user bubble
+    appendUserBubble(text);
+
+    // Show typing indicator
+    const typingEl = appendTypingIndicator();
+    scrollToBottom();
+
+    // Create streaming AI bubble (empty initially)
+    const { wrapper, contentEl, toolContainer } = createStreamingBubble();
+    let fullText = '';
+    let toolCalls = [];
+    let typingRemoved = false;
+
+    try {
+        const res = await fetch('/chat/stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: text,
+                history: conversationHistory
+            })
+        });
+
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const jsonStr = line.slice(6).trim();
+                if (!jsonStr) continue;
+
+                try {
+                    const event = JSON.parse(jsonStr);
+
+                    if (event.type === 'tool_call') {
+                        // Show tool chip
+                        const icon = event.name === 'search_flights' ? 'flight' :
+                                     event.name === 'search_hotels' ? 'hotel' : 'calculate';
+                        toolContainer.innerHTML += `<span class="tool-chip"><span class="material-symbols-outlined" style="font-size:14px;">${icon}</span>${event.name}</span> `;
+                        toolCalls.push({ name: event.name });
+                    }
+
+                    if (event.type === 'token') {
+                        // Remove typing indicator on first token
+                        if (!typingRemoved) {
+                            typingEl.remove();
+                            typingRemoved = true;
+                        }
+                        fullText += event.content;
+                        // Live render: show raw text with basic formatting
+                        contentEl.innerHTML = formatAITextLive(fullText);
+                        scrollToBottom();
+                    }
+
+                    if (event.type === 'done') {
+                        // Final rich render
+                        contentEl.innerHTML = formatAIText(fullText);
+                        // Add timestamp
+                        const ts = document.createElement('p');
+                        ts.className = 'text-[10px] text-on-surface-variant font-medium opacity-50 mt-2';
+                        ts.textContent = timeNow();
+                        wrapper.querySelector('.streaming-body').appendChild(ts);
+                    }
+
+                    if (event.type === 'error') {
+                        contentEl.innerHTML = '⚠️ ' + escapeHtml(event.content);
+                    }
+                } catch (e) { /* skip malformed JSON */ }
+            }
+        }
+
+        // If typing indicator wasn't removed (no tokens received)
+        if (!typingRemoved) typingEl.remove();
+
+        // If no done event was received, do final render anyway
+        if (fullText) {
+            contentEl.innerHTML = formatAIText(fullText);
+            conversationHistory.push({ role: 'user', content: text });
+            conversationHistory.push({ role: 'assistant', content: fullText });
+        }
+
+    } catch (err) {
+        typingEl.remove();
+        contentEl.innerHTML = '⚠️ Xin lỗi, có lỗi xảy ra khi xử lý yêu cầu. Vui lòng thử lại.';
+        console.error(err);
+    }
+
+    isLoading = false;
+    sendBtn.disabled = false;
+    msgInput.focus();
+    scrollToBottom();
+}
+
+// Quick send from chip / sidebar
+function sendQuick(text) {
+    msgInput.value = text;
+    sendMessage();
+}
+
+// ==================== BUBBLE RENDERERS ====================
+function appendUserBubble(text) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex justify-end gap-3 msg-animate';
+    wrapper.innerHTML = `
+        <div class="max-w-xl">
+            <div class="bg-primary text-on-primary p-4 rounded-xl rounded-tr-sm text-sm shadow-md shadow-primary/10 leading-relaxed">
+                ${escapeHtml(text)}
+            </div>
+            <p class="text-[10px] text-right mt-1.5 text-on-surface-variant font-medium opacity-50">${timeNow()}</p>
+        </div>
+        <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold mt-1 shadow">
+            B
+        </div>
+    `;
+    chatFeed.appendChild(wrapper);
+}
+
+function appendAIBubble(text, toolCalls) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 max-w-3xl msg-animate';
+
+    // Build tool chips HTML
+    let toolHtml = '';
+    if (toolCalls && toolCalls.length > 0) {
+        const chips = toolCalls.map(tc => {
+            const icon = tc.name === 'search_flights' ? 'flight' :
+                         tc.name === 'search_hotels' ? 'hotel' : 'calculate';
+            return `<span class="tool-chip"><span class="material-symbols-outlined" style="font-size:14px;">${icon}</span>${tc.name}</span>`;
+        }).join(' ');
+        toolHtml = `<div class="flex flex-wrap gap-1.5 mb-2">${chips}</div>`;
+    }
+
+    // Format text: convert newlines, basic markdown-like formatting
+    const formattedText = formatAIText(text);
+
+    wrapper.innerHTML = `
+        <div class="w-8 h-8 shrink-0 rounded-lg bg-primary-container flex items-center justify-center text-white mt-1">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+        </div>
+        <div class="space-y-2 flex-1 min-w-0">
+            ${toolHtml}
+            <div class="bg-surface-container-highest p-4 rounded-xl rounded-tl-sm text-on-surface text-sm leading-relaxed ai-content">
+                ${formattedText}
+            </div>
+            <p class="text-[10px] text-on-surface-variant font-medium opacity-50">${timeNow()}</p>
+        </div>
+    `;
+    chatFeed.appendChild(wrapper);
+    scrollToBottom();
+}
+
+function appendTypingIndicator() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 items-start msg-animate';
+    wrapper.id = 'typing-indicator';
+    wrapper.innerHTML = `
+        <div class="w-8 h-8 shrink-0 rounded-lg bg-primary-container flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+        </div>
+        <div class="flex gap-2 p-4 bg-surface-container-low rounded-xl rounded-tl-sm items-center">
+            <div class="w-2 h-2 bg-primary/50 rounded-full dot-1"></div>
+            <div class="w-2 h-2 bg-primary/50 rounded-full dot-2"></div>
+            <div class="w-2 h-2 bg-primary/50 rounded-full dot-3"></div>
+            <span class="text-xs text-slate-400 ml-2">Đang suy nghĩ...</span>
+        </div>
+    `;
+    chatFeed.appendChild(wrapper);
+    return wrapper;
+}
+
+// Create an empty AI bubble for streaming content into
+function createStreamingBubble() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 max-w-3xl msg-animate';
+    wrapper.innerHTML = `
+        <div class="w-8 h-8 shrink-0 rounded-lg bg-primary-container flex items-center justify-center text-white mt-1">
+            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+        </div>
+        <div class="streaming-body space-y-2 flex-1 min-w-0">
+            <div class="tool-container flex flex-wrap gap-1.5"></div>
+            <div class="bg-surface-container-highest p-4 rounded-xl rounded-tl-sm text-on-surface text-sm leading-relaxed ai-content stream-content"></div>
+        </div>
+    `;
+    chatFeed.appendChild(wrapper);
+    const contentEl = wrapper.querySelector('.stream-content');
+    const toolContainer = wrapper.querySelector('.tool-container');
+    return { wrapper, contentEl, toolContainer };
+}
+
+// Lightweight live formatting (used during streaming, before final render)
+function formatAITextLive(text) {
+    if (!text) return '';
+    let s = escapeHtml(text);
+    // Bold
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#005d90">$1</strong>');
+    // Headings - simple highlight
+    s = s.replace(/^(#{1,3})\s*(.+)/gm, '<strong style="color:#005d90;font-family:Plus Jakarta Sans,sans-serif">$2</strong>');
+    // VND prices
+    s = s.replace(/(\d[\d.,]*đ)/g, '<strong style="color:#0077b6">$1</strong>');
+    // Arrows
+    s = s.replace(/→/g, '<span style="color:#0077b6;font-weight:600">→</span>');
+    // Line breaks
+    s = s.replace(/\n/g, '<br>');
+    // Blinking cursor at end
+    s += '<span class="inline-block w-0.5 h-4 bg-primary/60 ml-0.5 animate-pulse" style="vertical-align:text-bottom"></span>';
+    return s;
+}
+
+// ==================== HELPERS ====================
+function scrollToBottom() {
+    requestAnimationFrame(() => {
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+    });
+}
+
+function timeNow() {
+    return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatAIText(text) {
+    if (!text) return '';
+
+    // Work line-by-line for structural elements
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+    let listNum = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+
+        // --- Section headings: ### or ** at start of line (like "### Chuyến bay:") ---
+        const headingMatch = line.match(/^#{1,3}\s*(.+)/);
+        if (headingMatch) {
+            if (inList) { html += '</ul>'; inList = false; }
+            const title = formatInline(headingMatch[1]);
+            const icon = getSectionIcon(title);
+            html += `<div class="ai-section"><span class="material-symbols-outlined section-icon" style="font-variation-settings:'FILL' 1;">${icon}</span>${title}</div>`;
+            continue;
+        }
+
+        // --- Horizontal rule ---
+        if (line.match(/^---+$/)) {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += '<hr>';
+            continue;
+        }
+
+        // --- Numbered list: "1. text" or "  1. text" ---
+        const numMatch = line.match(/^\s*(\d+)\.\s+(.+)/);
+        if (numMatch) {
+            if (!inList) { html += '<ul>'; inList = true; }
+            html += `<li class="numbered" data-num="${numMatch[1]}.">${formatInline(numMatch[2])}</li>`;
+            continue;
+        }
+
+        // --- Bullet list: "- text" or "  - text" ---
+        const bulletMatch = line.match(/^\s*[-•]\s+(.+)/);
+        if (bulletMatch) {
+            if (!inList) { html += '<ul>'; inList = true; }
+            html += `<li>${formatInline(bulletMatch[1])}</li>`;
+            continue;
+        }
+
+        // --- Empty line ---
+        if (line.trim() === '') {
+            if (inList) { html += '</ul>'; inList = false; }
+            html += '<div style="height:6px"></div>';
+            continue;
+        }
+
+        // --- Regular paragraph ---
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<div>${formatInline(line)}</div>`;
+    }
+
+    if (inList) html += '</ul>';
+    return html;
+}
+
+// Format inline elements: bold, italic, prices, emoji
+function formatInline(text) {
+    let s = escapeHtml(text);
+    // Bold: **text**
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Inline code: `text`
+    s = s.replace(/`(.+?)`/g, '<code>$1</code>');
+    // Highlight VND prices (e.g., 1.200.000đ or 950,000đ)
+    s = s.replace(/(\d[\d.,]*đ)/g, '<strong style="color:#0077b6">$1</strong>');
+    // Arrow
+    s = s.replace(/→/g, '<span style="color:#0077b6;font-weight:600">→</span>');
+    // Warning emoji  
+    s = s.replace(/⚠/g, '<span style="color:#d63031">⚠</span>');
+    return s;
+}
+
+// Pick a Material icon based on section title content
+function getSectionIcon(title) {
+    const t = title.toLowerCase();
+    if (t.includes('chuyến bay') || t.includes('bay') || t.includes('flight')) return 'flight';
+    if (t.includes('khách sạn') || t.includes('hotel') || t.includes('lưu trú')) return 'hotel';
+    if (t.includes('chi phí') || t.includes('ngân sách') || t.includes('budget') || t.includes('tổng')) return 'payments';
+    if (t.includes('gợi ý') || t.includes('lưu ý') || t.includes('tip')) return 'lightbulb';
+    if (t.includes('kế hoạch') || t.includes('plan') || t.includes('lịch trình')) return 'event_note';
+    return 'info';
+}
+
+// Focus input on load
+msgInput.focus();
+</script>
+
+</body>
+</html>
